@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حجز قاعات الأفراح</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="screen splash-screen active">
+        <div class="logo">
+            <i class="fas fa-house"></i>
+            <h1>حجز قاعات الأفراح</h1>
+        </div>
+        <div class="loading">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    
+    <div class="screen login-screen">
+        <div class="header">
+            <h2>تسجيل الدخول</h2>
+        </div>
+        <div class="login-form">
+            <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" placeholder="رقم الهاتف" id="login-phone">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="كلمة المرور" id="login-password">
+            </div>
+            <button class="btn primary" id="login-btn">تسجيل الدخول</button>
+            <p class="register-link">ليس لديك حساب؟ <a href="#" id="register-link">سجل الآن</a></p>
+        </div>
+    </div>
+
+    
+    <div class="screen register-screen">
+        <div class="header">
+            <h2>إنشاء حساب جديد</h2>
+        </div>
+        <div class="login-form">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" placeholder="الاسم الكامل" id="register-name">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-phone"></i>
+                <input type="tel" placeholder="رقم الهاتف" id="register-phone">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="كلمة المرور" id="register-password">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="تأكيد كلمة المرور" id="register-confirm-password">
+            </div>
+            <button class="btn primary" id="register-btn">إنشاء حساب</button>
+            <p class="register-link">لديك حساب بالفعل؟ <a href="#" id="login-link">تسجيل الدخول</a></p>
+        </div>
+    </div>
+
+    
+    <div class="screen home-screen">
+        <div class="app-header">
+
+            <div id="greeting" style="font-size:16px;margin:18px 0;"></div>
+            <div class="user-avatar" id="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="ابحث عن قاعة..." id="search-input">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="categories" id="categories">
+            <div class="category active" data-category="all">الكل</div>
+            <div class="category" data-category="luxury">فاخرة</div>
+            <div class="category" data-category="economy">اقتصادية</div>
+        </div>
+        <div class="halls-list" id="halls-list"></div>
+        <div class="bottom-nav">
+            <div class="nav-item active" data-screen="home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="nav-item" data-screen="favorites">
+                <i class="fas fa-heart"></i>
+                <span>المفضلة</span>
+            </div>
+            <div class="nav-item" data-screen="bookings" style="position:relative;">
+                <i class="fas fa-calendar-alt"></i>
+                <span>الحجوزات</span>
+                <span id="bookings-badge" style="display:none;position:absolute;top:2px;left:22px;background:#e53935;color:#fff;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:bold;z-index:2;">•</span>
+            </div>
+                
+            <div class="nav-item" data-screen="wallet">
+                <i class="fas fa-wallet"></i>
+                <span>المحفظة</span>
+            </div>
+
+            <div class="nav-item" data-screen="profile">
+                <i class="fas fa-user"></i>
+                <span>حسابي</span>
+            </div>
+        </div>
+    </div>
+
+        <!-- أضف هذا القسم في index.html -->
+    <div class="screen wallet-screen">
+        <div class="app-header">
+            <div class="back-btn"><i class="fas fa-arrow-right"></i></div>
+            <h2>محفظتي</h2>
+        </div>
+        <div style="padding:24px;">
+            <div id="wallet-balance" style="font-size:2em;color:#1976d2;margin-bottom:18px;text-align:center;"></div>
+            <div id="wallet-bonus-expiry" style="color:#888;text-align:center;margin-bottom:18px;"></div>
+            <div id="wallet-transactions"></div>
+        </div>
+    </div>
+
+    
+    <div class="screen hall-details-screen">
+        <div class="details-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="actions">
+                <div id="hall-fav-btn" style="position:absolute;top:18px;left:18px;z-index:2;"></div>
+            </div>
+        </div>
+        <div class="hall-gallery">
+            <div class="main-image" id="main-image-slider">
+                <img id="main-hall-image" src="" alt="Hall Image" loading="lazy">
+            </div>
+            <div class="thumbnails" id="thumbnails"></div>
+        </div>
+        <div class="hall-info">
+            <h2 class="hall-name" id="hall-name"></h2>
+            <div class="rating">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFD600" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                <span id="hall-rating"></span>
+            </div>
+            <div class="location">
+                <i class="fas fa-map-marker-alt"></i>
+                <span id="hall-location"></span>
+            </div>
+            <div class="views">
+                <i class="fas fa-eye"></i>
+                <span id="hall-views"></span>
+            </div>
+        </div>
+        <div class="hall-features-grid">
+            <div class="feature-card"><i class="fas fa-users"></i> السعة: <b id="hall-capacity"></b></div>
+            <div class="feature-card"><i class="fas fa-ruler-combined"></i> الحجم: <b id="hall-size"></b></div>
+            <div class="feature-card"><i class="fas fa-money-bill-wave"></i> السعر: <b id="hall-price"></b></div>
+            <div class="feature-card"><svg width="18" height="18" viewBox="0 0 24 24" fill="#FFD600" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg> التقييم: <b id="hall-rating-feature"></b></div>
+        </div>
+        <div class="book-now-btn">
+            <button id="book-now-btn" class="btn primary">احجز الآن</button>
+        </div>
+
+        <!-- زر اللايك فوق (مثلاً أعلى تفاصيل القاعة) -->
+        <div class="hall-like-btn" id="hall-like-btn">
+            <button class="circle-btn" id="like-btn">
+                <i class="fa-heart"></i>
+                <span id="hall-likes"></span>
+            </button>
+        </div>
+
+        <!-- أزرار التعليقات والمشاهدات في الجانب -->
+        <div class="hall-floating-stats" id="hall-floating-stats">
+            <button class="circle-btn" id="show-comments-float-btn">
+                <i class="fas fa-comment"></i>
+                <span id="hall-comments-count">0</span>
+            </button>
+            <button class="circle-btn" disabled style="opacity:0">
+                <i class="fas fa-eye"></i>
+                <span id="hall-views"></span>
+            </button>
+        </div>
+
+        <div id="reviews-list"></div>
+        <div id="star-rating"></div>
+        <textarea id="review-comment" placeholder="اكتب تعليقك..."></textarea>
+        <button id="submit-review-btn">إرسال التقييم</button>
+    </div>
+
+    
+    <div class="screen booking-screen">
+        <div class="booking-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>إكمال الحجز</h2>
+        </div>
+        <div class="hall-summary">
+            <img id="booking-hall-image" src="" alt="" loading="lazy">
+            <div>
+                <h3 id="booking-hall-name"></h3>
+                <div class="location"><span id="booking-hall-location"></span></div>
+            </div>
+        </div>
+        <div class="booking-form">
+            <h3>تفاصيل الحجز</h3>
+            <div class="form-group">
+                <label>التاريخ</label>
+                <div class="date-picker">
+                    <input type="date" id="booking-date">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>الوقت</label>
+                <div class="time-picker">
+                    <select id="booking-time">
+                        <option value="18:00">06:00 مساءً</option>
+                        <option value="19:00">07:00 مساءً</option>
+                        <option value="20:00">08:00 مساءً</option>
+                        <option value="21:00">09:00 مساءً</option>
+                    </select>
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>عدد الضيوف</label>
+                <div class="guest-counter">
+                    <button class="counter-btn minus">-</button>
+                    <span class="count" id="guest-count">100</span>
+                    <button class="counter-btn plus">+</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ملاحظات إضافية</label>
+                <textarea id="booking-notes" placeholder="أي متطلبات خاصة..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>الإضافات</label>
+                <div id="extras-list"></div>
+            </div>
+        </div>
+        <div class="confirm-booking">
+            <button class="btn primary" id="confirm-booking-btn">تأكيد الحجز</button>
+        </div>
+        <div style="color:#888;text-align:center;margin-top:12px;">
+            سيتم التواصل معك قريباً بخصوص السعر وموعد الحجز
+        </div>
+    </div>
+
+    
+    <div class="screen bookings-screen">
+        <div class="app-header" style="position:sticky;top:0;z-index:10;background:var(--background,#fff);">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>حجوزاتي</h2>
+        </div>
+        <div class="bookings-list" id="bookings-list"></div>
+    </div>
+
+    
+    <div class="screen booking-details-screen" style="position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:hidden;z-index:100;">
+        <div class="app-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>تفاصيل الحجز</h2>
+        </div>
+        <div id="booking-details"></div>
+        <div class="chat-section">
+            <h3>المحادثة مع الإدارة</h3>
+            <div class="chat-messages" id="chat-messages" style="padding-bottom:140px;overflow-y:auto;max-height:600px;"></div>
+            <div class="chat-input" style="position:fixed;bottom:0;right:0;left:0;background:#fff;z-index:10;padding:12px 0;box-shadow:0 -2px 8px #0001;">
+                <input type="text" id="chat-input" placeholder="اكتب رسالة...">
+                <button id="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <script>
+                function scrollChatToBottom() {
+                    var chat = document.getElementById('chat-messages');
+                    if (chat) chat.scrollTop = chat.scrollHeight;
+                }
+                document.addEventListener('DOMContentLoaded', scrollChatToBottom);
+                const chatObserver = new MutationObserver(scrollChatToBottom);
+                chatObserver.observe(document.getElementById('chat-messages'), { childList: true, subtree: true });
+            </script>
+        </div>
+    </div>
+
+    
+    <div class="screen favorites-screen">
+        <div class="app-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>القاعات المفضلة</h2>
+        </div>
+        <div class="favorites-list" id="favorites-list"></div>
+    </div>
+
+    
+    <div class="screen profile-screen">
+        <div class="profile-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>حسابي</h2>
+        </div>
+        <div class="user-info">
+            <div class="avatar" id="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h3 id="profile-name"></h3>
+            <p id="profile-phone"></p>
+        </div>
+        <div class="profile-menu">
+            <div class="menu-item" id="edit-profile-btn">
+                <i class="fas fa-user-edit"></i>
+                <span>تعديل الملف الشخصي</span>
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="menu-item" id="my-bookings-btn">
+                <i class="fas fa-calendar-alt"></i>
+                <span>حجوزاتي</span>
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="menu-item" id="my-favorites-btn">
+                <i class="fas fa-heart"></i>
+                <span>المفضلة</span>
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="menu-item" id="help-btn">
+                <i class="fas fa-question-circle"></i>
+                <span>المساعدة</span>
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="menu-item logout" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل الخروج</span>
+                <i class="fas fa-chevron-left"></i>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="screen edit-profile-screen">
+        <div class="profile-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>تعديل الملف الشخصي</h2>
+        </div>
+        <div class="user-info" style="padding-bottom:0;">
+            <div class="avatar" id="edit-profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        <div class="edit-profile-form" style="padding: 20px;">
+            <div class="form-group">
+                <label>رقم الحساب (ID)</label>
+                <input type="text" id="edit-profile-id" readonly style="background:#f5f5f5;">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" placeholder="تعديل الاسم" id="edit-profile-name">
+            </div>
+            <button class="btn primary" id="save-profile-btn" style="margin-top:20px;">حفظ التغييرات</button>
+        </div>
+        <div id="profile-popup" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.2);z-index:9999;justify-content:center;align-items:center;">
+            <div style="background:#fff;padding:30px 40px;border-radius:16px;min-width:220px;text-align:center;font-size:18px;">
+                <div id="popup-loading" style="margin-bottom:10px;">
+                    <div class="spinner" style="margin:auto;border:4px solid #eee;border-top:4px solid #3498db;border-radius:50%;width:36px;height:36px;animation:spin 1s linear infinite;"></div>
+                </div>
+                <span id="popup-message">جاري الحفظ...</span>
+            </div>
+        </div>
+        <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        </style>
+    </div>
+
+    
+    <div class="screen help-screen">
+        <div class="profile-header">
+            <div class="back-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <h2>المساعدة</h2>
+        </div>
+        <div class="user-info" style="padding-bottom:0;">
+            <div class="avatar" style="background:var(--primary-color);font-size:32px;">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3 style="margin-bottom:0;">كيف يمكننا مساعدتك؟</h3>
+        </div>
+        <div style="padding: 20px;">
+            <div style="background:var(--card);border-radius:12px;padding:18px 16px;box-shadow:0 2px 8px #0001;">
+                <ul style="list-style:none;padding:0;margin:0;color:#333;font-size:16px;">
+                    <li style="margin-bottom:18px;display:flex;align-items:center;">
+                        <i class="fas fa-info-circle" style="color:var(--primary-color);margin-left:10px;"></i>
+                        يمكنك البحث عن قاعة، الحجز، أو إدارة حسابك من خلال القائمة الرئيسية.
+                    </li>
+                    <li style="margin-bottom:18px;display:flex;align-items:center;">
+                        <i class="fas fa-phone" style="color:var(--secondary-color);margin-left:10px;"></i>
+                        للدعم الفني أو الاستفسارات: <b dir="ltr" style="font-family:monospace;">779470000</b>
+                    </li>
+                    <li style="margin-bottom:18px;display:flex;align-items:center;">
+                        <i class="fas fa-envelope" style="color:var(--error);margin-left:10px;"></i>
+                        البريد الإلكتروني: <b>support@halls.com</b>
+                    </li>
+                    <li style="display:flex;align-items:center;">
+                        <i class="fas fa-question-circle" style="color:#ff9800;margin-left:10px;"></i>
+                        لمزيد من الأسئلة الشائعة راجع <a href="#" style="color:var(--primary-color);text-decoration:underline;">الأسئلة الشائعة</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <button class="show-comments-btn" id="show-comments-btn"><i class="fas fa-comment"></i> عرض التعليقات</button>
+<div class="comments-bottom-sheet" id="comments-bottom-sheet">
+    <div class="comments-header">
+        <div class="drag-bar"></div>
+        <span>التعليقات</span>
+    </div>
+    <hr class="comments-divider">
+    <div class="comments-list" id="comments-list"></div>
+    <div class="comments-input-box">
+        <input type="text" id="comment-input" placeholder="اكتب تعليقك...">
+        <button id="send-comment-btn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+    <script src="script.js"></script> 
+</body>
+</html>

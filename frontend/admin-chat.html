@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>شات الإدارة - قاعات الأفراح</title>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+          --main-bg: #fff;
+          --main-text: #24292f;
+          --secondary-bg: #f6f8fa;
+          --border: #d0d7de;
+          --msg-user-bg: #eaeef2;
+          --msg-admin-bg: #0969da;
+          --msg-admin-text: #fff;
+          --msg-user-text: #24292f;
+          --input-bg: #f6f8fa;
+          --input-border: #d0d7de;
+          --input-text: #24292f;
+          --btn-bg: #0969da;
+          --btn-text: #fff;
+          --tag-pending: #d4a72c;
+          --tag-approved: #2da44e;
+          --tag-deposit: #2188ff;
+          --tag-canceled: #cf222e;
+        }
+        body.dark {
+          --main-bg: #0d1117;
+          --main-text: #c9d1d9;
+          --secondary-bg: #161b22;
+          --border: #30363d;
+          --msg-user-bg: #21262d;
+          --msg-admin-bg:rgb(9, 78, 158);
+          --msg-admin-text: #fff;
+          --msg-user-text: #c9d1d9;
+          --input-bg: #161b22; 
+          --input-border: #30363d;
+          --input-text: #c9d1d9;
+          --btn-bg:rgb(0, 0, 0);
+          --btn-text: #fff;
+          --tag-pending: #d4a72c;
+          --tag-approved: #2da44e;
+          --tag-deposit: #2188ff;
+          --tag-canceled: #cf222e;
+        }
+        body {
+            background: var(--main-bg);
+            color: var(--main-text);
+            transition: background 0.4s, color 0.4s;
+        }
+        html, body {
+            height: 100%;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+        body { height: 100%; }
+        .chat-admin-container {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            min-width: 0;
+            background: var(--main-bg);
+            overflow: hidden;
+            transition: background 0.4s;
+        }
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+        }
+        .chat-messages {
+            flex: 1 1 0;
+            min-height: 0;
+            padding: 12px;
+            overflow-y: auto;
+            background: var(--main-bg);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            transition: background 0.4s;
+        }
+        .chat-users-list {
+            width: 370px; min-width: 220px; border-left: 2px solid var(--border); background: var(--secondary-bg);
+            border-radius: 0; overflow-y: auto; display: flex; flex-direction: column;
+            transition: all 0.2s, background 0.4s, border-color 0.4s;
+            min-height: 0;
+        }
+        .chat-users-list h2 { text-align: center; margin: 20px 0 10px 0; font-size: 22px; }
+        .chat-search-box {
+            padding: 0 16px 10px 16px;
+        }
+        .chat-search-box input {
+            width: 100%; padding: 8px 12px; border-radius: 8px; border: 2px solid var(--input-border);
+            font-size: 15px; margin-bottom: 8px; background: var(--input-bg); color: var(--input-text);
+            transition: background 0.4s, border-color 0.4s, color 0.4s;
+        }
+        .chat-filters {
+            display: flex; gap: 8px; padding: 0 16px 10px 16px; flex-wrap: wrap;
+        }
+        .chat-filters button {
+            background: #d9d9d9; border: none; padding: 6px 16px; border-radius: 8px;
+            font-size: 14px; cursor: pointer; color: #333; transition: background 0.2s;
+        }
+        .chat-filters button.active { background: #3498db; color: #fff; }
+        .chat-user-item {
+            padding: 14px 12px; border-bottom: 2px solid var(--border); cursor: pointer;
+            transition: background 0.2s; display: flex; flex-direction: column;
+        }
+        .chat-user-item.active, .chat-user-item:hover { background: #e3f1fd; }
+        .chat-user-header { display: flex; align-items: center; gap: 10px;}
+        .chat-user-avatar {
+            width: 38px; height: 38px; border-radius: 50%; background: #3498db; color: #fff; 
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .chat-user-info { flex: 1; }
+        .chat-user-name { font-weight: bold; }
+        .chat-user-status { font-size: 13px; margin-top: 2px; }
+        .chat-user-tag {
+            display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px;
+            margin-right: 6px; color: #fff;
+        }
+        .tag-pending { background: var(--tag-pending);}
+        .tag-approved { background: var(--tag-approved);}
+        .tag-deposit { background: var(--tag-deposit);}
+        .tag-canceled_user, .tag-canceled_admin { background: var(--tag-canceled);}
+        .chat-header {
+            padding: 14px 18px; border-bottom: 2px solid var(--border); background: var(--secondary-bg);
+            display: flex; flex-direction: column; gap: 6px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            transition: background 0.4s, border-color 0.4s;
+        }
+        .chat-header h3 { margin: 0 0 2px 0; font-size: 20px; }
+        .chat-header .chat-booking-details {
+            font-size: 15px; color: #555; display: flex; flex-wrap: wrap; gap: 10px;
+        }
+        .chat-header .chat-booking-details span {
+            background: #f1f1f1; border-radius: 8px; padding: 2px 8px; margin-left: 4px;
+        }
+        .chat-msg { margin-bottom: 18px; max-width: 75%; word-break: break-word; }
+        .chat-msg.user {
+            background: var(--msg-user-bg); align-self: flex-start; border-radius: 24px 24px 10px 24px; color: var(--msg-user-text);
+            transition: background 0.4s, color 0.4s;
+        }
+        .chat-msg.admin {
+            background: var(--msg-admin-bg); color: var(--msg-admin-text); align-self: flex-end; border-radius: 24px 24px 24px 10px;
+            transition: background 0.4s, color 0.4s;
+        }
+        .chat-msg { padding: 10px 16px; font-size: 16px; }
+        .chat-time { font-size: 12px; color: #888; margin-top: 4px; text-align: left; }
+        .chat-input-area {
+            display: flex; padding: 14px 18px; border-top: 2px solid var(--border); background: var(--secondary-bg);
+            gap: 10px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            transition: background 0.4s, border-color 0.4s;
+        }
+        .chat-input-area input {
+            flex: 1; padding: 10px 14px; border-radius: 8px; border: 2px solid var(--input-border); font-size: 16px;
+            background: var(--input-bg); color: var(--input-text);
+            transition: background 0.4s, border-color 0.4s, color 0.4s;
+        }
+        .chat-input-area button {
+            background: var(--btn-bg); color: var(--btn-text); border: none; padding: 10px 22px;
+            border-radius: 8px; font-size: 16px; cursor: pointer;
+            transition: background 0.4s, color 0.4s;
+        }
+        .back-to-list {
+            display: none; background: #eee; color: #3498db; border: none; border-radius: 8px;
+            padding: 7px 18px; font-size: 15px; margin-bottom: 10px; cursor: pointer;
+        }
+        @media (max-width: 700px) {
+            .chat-admin-container { flex-direction: column; min-height: 0; height: 100vh; }
+            .chat-users-list { width: 100vw; min-width: 0; border-left: none; border-bottom: 2px solid var(--border); border-radius: 0; max-height: none; position: static; height: auto; }
+            .chat-main { min-width: 0; min-height: 0; }
+            .chat-users-list.hide { display: none !important; }
+            .chat-main.hide { display: none !important; }
+            .back-to-list { display: block; }
+        }
+        @media (max-width: 600px) {
+            .chat-header, .chat-input-area, .chat-messages { padding: 8px !important; }
+            .chat-msg { font-size: 15px; }
+        }
+        body.dark ::-webkit-scrollbar-thumb { background: #444; }
+        ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 8px; transition: background 0.4s;}
+    </style>
+</head>
+<body>
+    <button id="toggle-theme-btn" aria-label="تبديل الوضع" style="position:fixed;top:16px;left:16px;z-index:9999;background:none;border:none;cursor:pointer;padding:4px;border-rudius: 10px;">
+      <span id="theme-icon" style="display:inline-block;width:32px;height:32px;vertical-align:middle;"></span>
+    </button>
+    <div class="chat-admin-container">
+        <div class="chat-users-list" id="chat-users-list">
+            <h2>الحجوزات</h2>
+            <div class="chat-search-box">
+                <input type="text" id="chat-search" placeholder="بحث بالاسم أو الجوال أو رقم الطلب أو رقم المستخدم...">
+            </div>
+            <div class="chat-filters">
+                <button class="active" data-filter="all">الكل</button>
+                <button data-filter="pending">معلقة</button>
+                <button data-filter="approved">تم الحجز</button>
+                <button data-filter="deposit">عربون</button>
+                <button data-filter="canceled">ملغاة</button>
+            </div>
+            <div id="chat-users"></div>
+        </div>
+        <div class="chat-main" id="chat-main">
+            <button class="back-to-list" id="back-to-list-btn">الرجوع للقائمة</button>
+            <div class="chat-header" id="chat-header">
+                <h3>اختر حجزًا لعرض الشات</h3>
+            </div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area" id="chat-input-area" style="display:none;">
+                <div id="chat-suggestions" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;"></div>
+                <input type="text" id="admin-chat-input" placeholder="اكتب رسالة...">
+                <button id="admin-send-btn">إرسال</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    let bookings = [];
+    let users = [];
+    let selectedBooking = null;
+    let chatInterval = null;
+    let filteredBookings = [];
+    let currentFilter = "all";
+
+    async function loadChatUsers() {
+        bookings = await fetch('/api/bookings').then(r => r.json());
+        users = await fetch('/api/users').then(r => r.json());
+        bookings = bookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        filteredBookings = bookings;
+        renderChatUsers();
+    }
+
+async function fetchGeminiSuggestions(messages) {
+    const context = messages.slice(-5).map(m => m.message).join('\n');
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=YOUR_GEMINI_API_KEY', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: context }] }],
+            generationConfig: { candidateCount: 3 }
+        })
+    });
+    const data = await res.json();
+    return (data.candidates || []).map(c => c.content.parts[0].text);
+}
+
+async function showSuggestions(messages) {
+    const suggestionsDiv = document.getElementById('chat-suggestions');
+    suggestionsDiv.innerHTML = 'جاري جلب الاقتراحات...';
+    try {
+        const suggestions = await fetchGeminiSuggestions(messages);
+        suggestionsDiv.innerHTML = '';
+        suggestions.forEach(s => {
+            const btn = document.createElement('button');
+            btn.textContent = s;
+            btn.style.cssText = 'padding:6px 14px;border-radius:8px;border:1px solid #ccc;background:#eee;cursor:pointer;';
+            btn.onclick = () => {
+                document.getElementById('admin-chat-input').value = s;
+                document.getElementById('admin-chat-input').focus();
+            };
+            suggestionsDiv.appendChild(btn);
+        });
+    } catch(e) {
+        suggestionsDiv.innerHTML = 'تعذر جلب الاقتراحات.';
+    }
+}
+
+    function renderChatUsers() {
+        const chatUsers = document.getElementById('chat-users');
+        chatUsers.innerHTML = '';
+        filteredBookings.forEach(b => {
+            const user = users.find(u => u.id === b.user_id) || {};
+            let tag = '<span class="chat-user-tag tag-pending" style="color:#000;">معلقة</span>';
+            if (b.status === 'approved') tag = '<span class="chat-user-tag tag-approved" style="color:#000;>تم الحجز</span>';
+            else if (b.status === 'deposit') tag = '<span class="chat-user-tag tag-deposit"     >عربون</span>';
+            else if (b.status === 'canceled_user' || b.status === 'canceled_admin') tag = '<span class="chat-user-tag tag-canceled_user">ملغاة</span>';
+            chatUsers.innerHTML += `
+                <div class="chat-user-item" data-booking="${b.id}">
+                    <div class="chat-user-header">
+                        
+                        <div class="chat-user-avatar">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="8" r="4" fill="currentColor"/>
+                            <ellipse cx="12" cy="17" rx="7" ry="5" fill="currentColor" opacity="0.3"/>
+                          </svg>
+                        </div>
+                        <div class="chat-user-info">
+                            <div class="chat-user-name">${user.name || 'مستخدم'}</div>
+                            <div class="chat-user-status">${user.phone || ''}</div>
+                        </div>
+                        ${tag}
+                    </div>
+                    <div style="font-size:13px;color:#888;margin-top:6px;">
+                        القاعة: <b>${b.name || '-'}</b> | التاريخ: <b>${b.date}</b>
+                    </div>
+                    <div style="font-size:12px;color:#666;margin-top:2px;">
+                        رقم الطلب: <b>${b.booking_number}</b> | رقم المستخدم: <b>${b.user_id}</b>
+                    </div>
+                </div>
+            `;
+        });
+        document.querySelectorAll('.chat-user-item').forEach(item => {
+            item.onclick = function() {
+                document.querySelectorAll('.chat-user-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                const bookingId = this.dataset.booking;
+                showChatForBooking(bookingId);
+
+                if (window.innerWidth <= 700) {
+                    document.getElementById('chat-users-list').classList.add('hide');
+                    document.getElementById('chat-main').classList.remove('hide');
+                }
+            };
+        });
+    }
+
+    document.getElementById('chat-search').oninput = function() {
+        filterAndRender();
+    };
+
+    document.querySelectorAll('.chat-filters button').forEach(btn => {
+        btn.onclick = function() {
+            document.querySelectorAll('.chat-filters button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            filterAndRender();
+        };
+    });
+
+    function filterAndRender() {
+        const q = document.getElementById('chat-search').value.trim().toLowerCase();
+        filteredBookings = bookings.filter(b => {
+            const user = users.find(u => u.id === b.user_id) || {};
+            let match = (
+                (user.name && user.name.toLowerCase().includes(q)) ||
+                (user.phone && user.phone.includes(q)) ||
+                (b.booking_number && b.booking_number.toString().includes(q)) ||
+                (b.user_id && b.user_id.toString().includes(q))
+            );
+            let statusMatch = false;
+            if (currentFilter === "all") statusMatch = true;
+            else if (currentFilter === "pending") statusMatch = b.status === "pending";
+            else if (currentFilter === "approved") statusMatch = b.status === "approved";
+            else if (currentFilter === "deposit") statusMatch = b.status === "deposit";
+            else if (currentFilter === "canceled") statusMatch = b.status === "canceled_user" || b.status === "canceled_admin";
+            return match && statusMatch;
+        });
+        renderChatUsers();
+    }
+
+    async function showChatForBooking(bookingId) {
+        selectedBooking = bookings.find(b => b.id == bookingId);
+        const user = users.find(u => u.id === selectedBooking.user_id) || {};
+        let tag = '<span class="chat-user-tag tag-pending" style="color:#000;">معلقة</span>';
+        if (selectedBooking.status === 'approved') tag = '<span class="chat-user-tag tag-approved"style="color:#000;>تم الحجز</span>';
+        else if (selectedBooking.status === 'deposit') tag = '<span class="chat-user-tag tag-deposit"style="color:#000;>عربون</span>';
+        else if (selectedBooking.status === 'canceled_user' || selectedBooking.status === 'canceled_admin') tag = '<span class="chat-user-tag tag-canceled_user">ملغاة</span>';
+        document.getElementById('chat-header').innerHTML = `
+            <div style="font-size:15px;color:#888;">
+                رقم الطلب: <b>${selectedBooking.booking_number}</b> | رقم المستخدم: <b>${selectedBooking.user_id}</b>
+            </div>
+            <h3>شات مع: ${user.name || 'مستخدم'} (${user.phone || ''})</h3>
+            <div class="chat-booking-details">
+                <span>القاعة: <b>${selectedBooking.name || '-'}</b></span>
+                <span>التاريخ: <b>${selectedBooking.date}</b></span>
+                <span>الوقت: <b>${selectedBooking.time}</b></span>
+                <span>عدد الضيوف: <b>${selectedBooking.guests}</b></span>
+                <span>${tag}</span>
+            </div>
+        `;
+        document.getElementById('chat-input-area').style.display = '';
+        loadChatMessages(selectedBooking.booking_number);
+
+        if (chatInterval) clearInterval(chatInterval);
+        chatInterval = setInterval(() => {
+            if (selectedBooking)
+                loadChatMessages(selectedBooking.booking_number);
+                
+        }, 3000);
+
+      
+    }
+
+    async function loadChatMessages(booking_number) {
+        const res = await fetch(`/api/messages/${booking_number}`);
+        const messages = await res.json();
+        const chat = document.getElementById('chat-messages');
+        chat.innerHTML = '';
+        if (selectedBooking) {
+            chat.innerHTML += `
+                <div class="chat-msg user" style="background:#414141;border:1px solid #d9d9d9;">
+                    <b>طلب الحجز:</b><br>
+                    القاعة: ${selectedBooking.name || '-'}<br>
+                    التاريخ: ${selectedBooking.date} | الوقت: ${selectedBooking.time}<br>
+                    عدد الضيوف: ${selectedBooking.guests}<br>
+                    ملاحظات: ${selectedBooking.notes || '-'}
+                </div>
+            `;
+        }
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'chat-msg ' + (msg.sender === 'admin' ? 'admin' : 'user');
+            div.innerHTML = `<span>${msg.message}</span><div class="chat-time">${new Date(msg.created_at).toLocaleTimeString('ar-EG')}</div>`;
+            chat.appendChild(div);
+        });
+        scrollChatToBottom();
+    }
+
+
+
+    document.getElementById('admin-send-btn').onclick = async function() {
+        const input = document.getElementById('admin-chat-input');
+        const message = input.value.trim();
+        if (!message || !selectedBooking) return;
+        await fetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ booking_number: selectedBooking.booking_number, sender: 'admin', message })
+        });
+        input.value = '';
+        loadChatMessages(selectedBooking.booking_number);
+    };
+
+    document.getElementById('back-to-list-btn').onclick = function() {
+        document.getElementById('chat-users-list').classList.remove('hide');
+        document.getElementById('chat-main').classList.add('hide');
+        document.getElementById('chat-header').innerHTML = `<h3>اختر حجزًا لعرض الشات</h3>`;
+        document.getElementById('chat-messages').innerHTML = '';
+        document.getElementById('chat-input-area').style.display = 'none';
+        if (chatInterval) clearInterval(chatInterval);
+    };
+
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 700) {
+            document.getElementById('chat-users-list').classList.remove('hide');
+            document.getElementById('chat-main').classList.remove('hide');
+        }
+    });
+
+    window.onbeforeunload = () => { if (chatInterval) clearInterval(chatInterval); };
+
+    loadChatUsers();
+
+    function resizeChatMessages() {
+        var adminContainer = document.querySelector('.chat-admin-container');
+        var chatMain = document.querySelector('.chat-main');
+        var header = document.querySelector('.chat-header');
+        var input = document.querySelector('.chat-input-area');
+        var messages = document.querySelector('.chat-messages');
+
+        if (!adminContainer || !chatMain || !header || !input || !messages) return;
+
+        var containerHeight = adminContainer.offsetHeight;
+        var headerHeight = header.offsetHeight;
+        var inputHeight = input.offsetHeight;
+
+        var messagesHeight = containerHeight - headerHeight - inputHeight;
+
+        if (messagesHeight > 0) {
+            messages.style.height = messagesHeight + 'px';
+            messages.style.minHeight = messagesHeight + 'px';
+            messages.style.maxHeight = messagesHeight + 'px';
+            messages.style.overflowY = 'auto';
+        }
+    }
+
+    window.addEventListener('load', resizeChatMessages);
+    window.addEventListener('resize', resizeChatMessages);
+    document.addEventListener('click', function() {
+        setTimeout(resizeChatMessages, 100);
+    });
+
+    const themeBtn = document.getElementById('toggle-theme-btn');
+    function setTheme(dark) {
+        document.body.classList.toggle('dark', dark);
+        themeBtn.innerHTML = dark ? '☀️ الوضع الفاتح' : '🌙 الوضع الداكن';
+        themeBtn.style.background = dark ? '#fff' : '#222';
+        themeBtn.style.color = dark ? '#222' : '#fff';
+    }
+    themeBtn.onclick = function() {
+        const isDark = !document.body.classList.contains('dark');
+        setTheme(isDark);
+        localStorage.setItem('chat-theme', isDark ? 'dark' : 'light');
+    };
+    window.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('chat-theme');
+        setTheme(saved === 'dark');
+    });
+    
+    </script>
+    <script src="https://kit.fontawesome.com/8b2e6b8e3a.js" crossorigin="anonymous"></script>
+</body>
+</html>

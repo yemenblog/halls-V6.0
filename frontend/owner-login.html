@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم صاحب القاعة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {background:#f7f8fa;}
+        .login-container {max-width:350px;margin:60px auto 0 auto;background:#fff;padding:32px 24px 24px 24px;border-radius:16px;box-shadow:0 2px 16px #0002;}
+        .login-container h2 {margin-bottom:18px;}
+        .login-container label {display:block;margin-bottom:6px;font-weight:500;}
+        .login-container input {width:100%;padding:10px;margin-bottom:16px;border-radius:8px;border:1px solid #ddd;}
+        .login-container .btn {width:100%;margin-top:8px;}
+        .login-error {color:#c00;margin-bottom:10px;text-align:center;}
+        .dashboard-stats {display:flex;gap:18px;justify-content:center;margin:20px 0;}
+        .stat-card {background:var(--color,#1976d2);color:#fff;padding:18px 24px;border-radius:14px;box-shadow:0 2px 8px #0002;text-align:center;min-width:120px;transition:.3s;}
+        .stat-number {font-size:2.2em;font-weight:bold;animation:pop .7s;}
+        .stat-label {font-size:1.1em;margin-top:6px;}
+        @keyframes pop {0%{transform:scale(.7);}100%{transform:scale(1);}}
+        .hall-list {display:flex;flex-wrap:wrap;gap:18px;}
+        .hall-card {background:#fff;border-radius:14px;box-shadow:0 2px 8px #0001;padding:18px;min-width:260px;max-width:320px;flex:1 1 260px;cursor:pointer;transition:.2s;}
+        .hall-card:hover {transform:translateY(-4px) scale(1.03);}
+        .hall-card img {width:100%;height:120px;object-fit:cover;border-radius:10px;}
+        .hall-card-info {margin-top:10px;}
+        .hall-card-info h3 {margin:0 0 6px 0;}
+        .modal {position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0007;display:none;align-items:center;justify-content:center;z-index:1000;}
+        .modal-content {background:#fff;padding:30px;border-radius:16px;min-width:320px;animation:modalIn .4s;}
+        @keyframes modalIn {from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+        .orders-list {display:flex;flex-wrap:wrap;gap:16px;}
+        .order-card {background:#fff;border-radius:12px;box-shadow:0 2px 8px #0001;padding:16px;min-width:260px;max-width:320px;flex:1 1 260px;position:relative;}
+        .order-card .order-status {margin-bottom:8px;}
+        .order-card .btn {margin-top:8px;}
+        .btn-disabled {background:#ccc !important;color:#fff !important;cursor:not-allowed;}
+        .review-list {display:flex;flex-wrap:wrap;gap:16px;}
+        .review-card {background:#f9f9f9;border-radius:10px;box-shadow:0 1px 4px #0001;padding:14px;min-width:220px;max-width:320px;flex:1 1 220px;}
+        .review-user {font-weight:bold;}
+        .review-stars {color:#fbc02d;}
+        .tabs {display:flex;gap:10px;}
+        .tab {flex:1;text-align:center;padding:12px 0;cursor:pointer;border-radius:8px;background:#f5f5f5;font-weight:500;}
+        .tab.active {background:#1976d2;color:#fff;}
+        .tab-content {display:none;}
+        .tab-content.active {display:block;}
+        .bottom-nav {position:fixed;bottom:0;left:0;width:100vw;display:flex;z-index:100;background:#fff;box-shadow:0 -2px 8px #0001;}
+        .nav-item {flex:1;text-align:center;padding:10px 0;cursor:pointer;color:#888;}
+        .nav-item.active {color:#1976d2;}
+        .nav-item i {display:block;font-size:20px;}
+        .app-header {display:flex;align-items:center;gap:12px;padding:12px 10px 0 10px;}
+        .user-avatar {width:40px;height:40px;border-radius:50%;background:#1976d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;}
+        .btn {background:#1976d2;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:16px;cursor:pointer;}
+        @media (max-width:600px){
+            .screen.home-screen{padding-bottom:60px;}
+            .dashboard-stats, .hall-list, .orders-list, .review-list {flex-direction:column;}
+        }
+
+                /* أضف هذا في <style> */
+        .review-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 16px;
+            min-width: 220px;
+            max-width: 340px;
+            flex: 1 1 220px;
+            margin-bottom: 8px;
+            transition: box-shadow .2s;
+        }
+        .review-card:hover {
+            box-shadow: 0 4px 16px #1976d233;
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة تسجيل الدخول -->
+    <div id="login-screen" class="login-container" style="display:none;">
+        <h2>تسجيل دخول صاحب القاعة</h2>
+        <div id="login-error" class="login-error"></div>
+        <form onsubmit="return ownerLogin(event)">
+            <label>رقم الجوال</label>
+            <input type="text" id="login-phone" maxlength="20" required>
+            <label>كلمة المرور</label>
+            <input type="password" id="login-password" required>
+            <button class="btn" type="submit">دخول</button>
+        </form>
+    </div>
+
+    <!-- شاشة لوحة التحكم -->
+    <div class="screen home-screen active" id="dashboard-screen" style="display:none;">
+        <div class="app-header">
+            <div class="user-avatar" id="owner-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 style="margin:auto;">لوحة تحكم القاعة</h2>
+            <button class="btn" id="logout-btn" style="margin-right:auto;">تسجيل الخروج</button>
+        </div>
+        <div class="dashboard-stats" id="dashboard-stats"></div>
+        <div id="owner-sections">
+            <div class="tabs" style="margin-bottom:20px;">
+                <div class="tab active" data-section="halls">قاعتي</div>
+                <div class="tab" data-section="orders">الطلبات</div>
+                <div class="tab" data-section="comments">التعليقات</div>
+            </div>
+            <div class="tab-content halls-section active">
+                <div class="hall-list" id="owner-halls-list"></div>
+            </div>
+            <div class="tab-content orders-section">
+                <div class="orders-list" id="owner-orders-list"></div>
+            </div>
+            <div class="tab-content comments-section">
+                <div class="review-list" id="owner-comments-list"></div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item active" data-section="halls"><i class="fas fa-home"></i><span>قاعتي</span></div>
+            <div class="nav-item" data-section="orders"><i class="fas fa-calendar-alt"></i><span>الطلبات</span></div>
+            <div class="nav-item" data-section="comments"><i class="fas fa-comment"></i><span>التعليقات</span></div>
+        </div>
+    </div>
+
+    <div id="edit-hall-modal" class="modal" onclick="if(event.target===this)closeEditHall()" style="display:none;">
+        <div class="modal-content" id="edit-hall-content"></div>
+    </div>
+    <script>
+    // تسجيل الدخول
+    function showDashboard() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard-screen').style.display = '';
+        loadOwnerHalls();
+        loadDashboardStats();
+    }
+    function showLogin() {
+        document.getElementById('login-screen').style.display = '';
+        document.getElementById('dashboard-screen').style.display = 'none';
+    }
+    async function ownerLogin(e) {
+        e.preventDefault();
+        const phone = document.getElementById('login-phone').value.trim();
+        const password = document.getElementById('login-password').value;
+        document.getElementById('login-error').innerText = '';
+        const res = await fetch('/api/owner-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, password })
+        });
+        const data = await res.json();
+        if (data.success && data.owner) {
+            localStorage.setItem('owner', JSON.stringify(data.owner));
+            showDashboard();
+        } else {
+            document.getElementById('login-error').innerText = 'بيانات الدخول غير صحيحة';
+        }
+        return false;
+    }
+
+    // تحقق من تسجيل الدخول عند تحميل الصفحة
+    let owner = null;
+    try { owner = JSON.parse(localStorage.getItem('owner') || 'null'); } catch {}
+    if (owner && owner.id) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+
+    // تبديل التبويبات
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.tab, .nav-item').forEach(tab => {
+            tab.onclick = function() {
+                document.querySelectorAll('.tab, .nav-item').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                const section = this.dataset.section;
+                document.querySelector('.' + section + '-section').classList.add('active');
+                document.querySelectorAll(`[data-section="${section}"]`).forEach(t => t.classList.add('active'));
+                if (section === 'halls') loadOwnerHalls();
+                if (section === 'orders') loadOwnerOrders();    
+                if (section === 'comments') loadOwnerComments();
+            };
+        });
+        document.getElementById('logout-btn').onclick = function() {
+            localStorage.removeItem('owner');
+            owner = null;
+            showLogin();
+        };
+    });
+
+    // إحصائيات الداشبورد
+    async function loadDashboardStats() {
+        owner = JSON.parse(localStorage.getItem('owner') || 'null');
+        const halls = await fetch('/api/halls').then(r => r.json());
+        const myHalls = halls.filter(h => h.owner_id == owner.id);
+        const hallIds = myHalls.map(h => h.id);
+        const orders = await fetch('/api/bookings').then(r => r.json());
+        const reviews = await fetch('/api/all-reviews').then(r => r.json());
+        const totalOrders = orders.filter(o => hallIds.includes(o.hall_id)).length;
+        const totalReviews = reviews.filter(r => hallIds.includes(r.hall_id)).length;
+        const totalViews = myHalls.reduce((sum, h) => sum + (h.views || 0), 0);
+
+        document.getElementById('dashboard-stats').innerHTML = `
+            <div class="stat-card" style="--color:#1976d2;">
+                <div class="stat-number" id="stat-orders">0</div>
+                <div class="stat-label">عدد الطلبات</div>
+            </div>
+            <div class="stat-card" style="--color:#43a047;">
+                <div class="stat-number" id="stat-reviews">0</div>
+                <div class="stat-label">عدد التعليقات</div>
+            </div>
+            <div class="stat-card" style="--color:#fbc02d;">
+                <div class="stat-number" id="stat-views">0</div>
+                <div class="stat-label">عدد المشاهدات</div>
+            </div>
+        `;
+        animateNumber('stat-orders', totalOrders);
+        animateNumber('stat-reviews', totalReviews);
+        animateNumber('stat-views', totalViews);
+    }
+    function animateNumber(id, end) {
+        let start = 0;
+        const el = document.getElementById(id);
+        const step = () => {
+            start += Math.ceil((end - start) / 8);
+            if (start > end) start = end;
+            el.innerText = start;
+            if (start < end) requestAnimationFrame(step);
+        };
+        step();
+    }
+
+    // تحميل القاعات الخاصة بالمالك (كروت)
+    async function loadOwnerHalls() {
+        owner = JSON.parse(localStorage.getItem('owner') || 'null');
+        const res = await fetch('/api/halls');
+        const halls = await res.json();
+        const myHalls = halls.filter(h => h.owner_id == owner.id);
+        const container = document.getElementById('owner-halls-list');
+        container.innerHTML = '';
+        if (!myHalls.length) {
+            container.innerHTML = '<div style="color:#888;text-align:center;">لا توجد قاعات مرتبطة بك.</div>';
+            return;
+        }
+        myHalls.forEach(hall => {
+            container.innerHTML += `
+                <div class="hall-card" onclick="openEditHall(${hall.id})">
+                    <img src="${hall.image || 'https://placehold.co/320x120'}" alt="صورة القاعة">
+                    <div class="hall-card-info">
+                        <h3>${hall.name}</h3>
+                        <div>الموقع: ${hall.location}</div>
+                        <div>السعر: ${hall.price}</div>
+                        <div>عدد المقاعد: ${hall.capacity || '-'}</div>
+                        <div>التقييم: ${hall.rating || 0}</div>
+                        <div>المشاهدات: ${hall.views || 0}</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    // شاشة تعديل القاعة (مودال)
+    window.openEditHall = async function(hallId) {
+        const hall = await fetch('/api/halls/' + hallId).then(r => r.json());
+        document.getElementById('edit-hall-content').innerHTML = `
+            <form class="hall-fields" onsubmit="return saveHall(event, ${hall.id})">
+                <label>اسم القاعة</label>
+                <input type="text" name="name" value="${hall.name}">
+                <label>الموقع</label>
+                <input type="text" name="location" value="${hall.location}">
+                <label>السعر</label>
+                <input type="number" name="price" value="${hall.price}">
+                <label>عدد المقاعد</label>
+                <input type="number" name="capacity" value="${hall.capacity || ''}">
+                <label>الوصف</label>
+                <textarea name="description">${hall.description || ''}</textarea>
+                <label>رابط الصورة الرئيسية</label>
+                <input type="text" name="image" value="${hall.image}">
+                <button type="submit" class="btn primary" style="margin-top:8px;">حفظ التعديلات</button>
+                <button type="button" class="btn" onclick="closeEditHall()">إغلاق</button>
+            </form>
+        `;
+        document.getElementById('edit-hall-modal').style.display = 'flex';
+    };
+    window.closeEditHall = function() {
+        document.getElementById('edit-hall-modal').style.display = 'none';
+    };
+
+    window.saveHall = async function(e, hallId) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+            name: form.name.value,
+            location: form.location.value,
+            price: form.price.value,
+            capacity: form.capacity.value,
+            description: form.description.value,
+            image: form.image.value
+        };
+        await fetch(`/api/halls/${hallId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        alert('تم حفظ التعديلات');
+        closeEditHall();
+        loadOwnerHalls();
+        return false;
+    };
+
+    // تحميل الطلبات الخاصة بقاعات المالك (كروت)
+    async function loadOwnerOrders() {
+        owner = JSON.parse(localStorage.getItem('owner') || 'null');
+        const halls = await fetch('/api/halls').then(r => r.json());
+        const myHalls = halls.filter(h => h.owner_id == owner.id);
+        const hallIds = myHalls.map(h => h.id);
+        const orders = await fetch('/api/bookings').then(r => r.json());
+        const users = await fetch('/api/users').then(r => r.json());
+        // جلب الإشعارات لمعرفة الطلبات التي تم إشعارها
+        const notifications = await fetch('/api/available-notifications').then(r => r.json());
+        const ordersList = document.getElementById('owner-orders-list');
+        ordersList.innerHTML = '';
+        orders.filter(o => hallIds.includes(o.hall_id)).forEach(o => {
+            const user = users.find(u => u.id === o.user_id) || {};
+            let status = '<span class="order-status status-pending">معلقة</span>';
+            if (o.status === 'approved') status = '<span class="order-status status-approved">تم الحجز</span>';
+            else if (o.status === 'deposit') status = '<span class="order-status status-deposit">عربون</span>';
+            else if (o.status === 'canceled_user' || o.status === 'canceled_admin') status = '<span class="order-status status-canceled">ملغاة</span>';
+            // تحقق إذا تم إشعار الإدارة أن القاعة فاضية في هذا اليوم
+            const notified = notifications.some(n => n.hall_id === o.hall_id && n.date === o.date);
+            ordersList.innerHTML += `
+                <div class="order-card">
+                    ${status}
+                    <div><b>رقم الطلب:</b> ${o.booking_number}</div>
+                    <div><b>المستخدم:</b> ${user.name || '-'}</div>
+                    <div><b>التاريخ:</b> ${o.date}</div>
+                    <div><b>الوقت:</b> ${o.time}</div>
+                    <div><b>عدد الضيوف:</b> ${o.guests}</div>
+                    <button class="btn ${notified ? 'btn-disabled' : ''}" ${notified ? 'disabled' : ''}
+                        onclick="markAvailable(${o.hall_id}, '${o.date}', this)">
+                        ${notified ? 'تم إشعار الإدارة' : 'القاعه فاضية'}
+                    </button>
+                </div>
+            `;
+        });
+    }
+
+
+    window.markAvailable = async function(hallId, date, btn) {
+        await fetch('/api/hall-available', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hall_id: hallId, date })
+        });
+        btn.classList.add('btn-disabled');
+        btn.disabled = true;
+        btn.innerText = 'تم إشعار الإدارة';
+        alert('تم إشعار الإدارة أن القاعة متاحة في هذا اليوم');
+    };
+
+
+    async function loadOwnerComments() {
+        owner = JSON.parse(localStorage.getItem('owner') || 'null');
+        const halls = await fetch('/api/halls').then(r => r.json());
+        const myHalls = halls.filter(h => h.owner_id == owner.id);
+        const hallIds = myHalls.map(h => h.id);
+        const reviews = await fetch('/api/all-reviews').then(r => r.json());
+        const commentsList = document.getElementById('owner-comments-list');
+        commentsList.innerHTML = '';
+        if (!reviews.some(r => hallIds.includes(r.hall_id))) {
+            commentsList.innerHTML = '<div style="color:#888;text-align:center;width:100%;">لا توجد تعليقات بعد.</div>';
+            return;
+        }
+        reviews.filter(r => hallIds.includes(r.hall_id)).forEach(r => {
+            commentsList.innerHTML += `
+                <div class="review-card">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                        <div class="review-user" style="font-size:1.1em;">${r.user_name || '-'}</div>
+                        <div class="review-stars" style="font-size:1.2em;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+                    </div>
+                    <div style="margin-bottom:8px;color:#333;">${r.comment}</div>
+                    <div style="color:#888;font-size:.9em;text-align:left;">${r.created_at ? r.created_at.split('T')[0] : ''}</div>
+                </div>
+            `;
+        });
+    }
+        
+    </script>
+</body>
+</html>
