@@ -2,525 +2,145 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة تحكم الإدارة - قاعات الأفراح</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>لوحة الإدارة الشاملة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> <!-- نعيد استخدام بعض الستايلات -->
     <style>
-        body { background: #f7f7f7; font-family: 'Tajawal', sans-serif; }
-        .admin-container { max-width: 1200px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 30px; }
-        .admin-nav { display: flex; gap: 20px; margin-bottom: 30px; }
-        .admin-nav button { background: #eee; border: none; padding: 10px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; }
-        .admin-nav button.active { background: #3498db; color: #fff; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .dashboard-cards { display: flex; gap: 24px; margin-bottom: 32px; }
-        .dashboard-card { flex: 1; background: #fafbfc; border-radius: 10px; padding: 24px; text-align: center; box-shadow: 0 1px 4px #0001; }
-        .dashboard-card h2 { margin: 0 0 10px 0; font-size: 32px; color: #3498db; }
-        .dashboard-card span { color: #888; font-size: 18px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 18px; background: #fff; }
-        th, td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: center; }
-        th { background: #f5f5f5; }
-        .actions button { margin: 0 2px; }
-        .add-hall-form { max-width: 500px; margin: 0 auto; background: #fafbfc; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px #0001; }
-        .add-hall-form input, .add-hall-form textarea { width: 100%; margin-bottom: 12px; padding: 8px; border-radius: 6px; border: 1px solid #ddd; }
-        .add-hall-form label { font-weight: 500; margin-bottom: 4px; display: block; }
-        .add-hall-form button { width: 100%; background: #3498db; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 18px; }
-        .hall-images-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; margin: 4px; border: 1px solid #eee; }
-        .status-pending { color: #ff9800; }
-        .status-approved { color: #4caf50; }
-        .status-deposit { color: #2196f3; }
-        .status-canceled { color: #f44336; }
-        #edit-review-modal {display:none;}
-        #edit-review-modal[style*="flex"] {display:flex;}
+        body { background: #f0f2f5; font-family: 'Tajawal', sans-serif; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: #fff; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+        .sidebar h2 { color: #007AFF; margin-bottom: 30px; text-align: center; }
+        .menu-item { display: block; padding: 12px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; color: #555; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { background: #e3f2fd; color: #007AFF; font-weight: bold; }
+        
+        .main-content { flex: 1; padding: 30px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #666; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; }
+        .bg-pending { background: #fff3e0; color: #e65100; }
+        .bg-active { background: #e8f5e9; color: #2e7d32; }
+        
+        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; color: #fff; margin-left: 5px; }
+        .btn-approve { background: #34C759; }
+        .btn-reject { background: #FF3B30; }
+        .btn-block { background: #333; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <h1 style="text-align:center;margin-bottom:30px;">لوحة تحكم الإدارة</h1>
-        <div class="admin-nav">
-            <button class="active" data-section="dashboard">الإحصائيات</button>
-            <button data-section="orders">الطلبات</button>
-            <button data-section="users">المستخدمين</button>
-            <button data-section="halls">القاعات</button>
-            <button data-section="add-hall">إضافة قاعة</button>
-            <button data-section="reviews">تعليقات القاعات</button>
-            <button data-section="notifications">إشعارات القاعات الفاضية</button>
-        </div>
 
-        <div class="section dashboard-section active">
-            <div class="dashboard-cards">
-                <div class="dashboard-card">
-                    <h2 id="stat-halls">0</h2>
-                    <span>عدد القاعات</span>
-                </div>
-                <div class="dashboard-card">
-                    <h2 id="stat-users">0</h2>
-                    <span>عدد المستخدمين</span>
-                </div>
-                <div class="dashboard-card">
-                    <h2 id="stat-orders">0</h2>
-                    <span>عدد الطلبات</span>
-                </div>
-                <div class="dashboard-card">
-                    <h2 id="stat-views">0</h2>
-                    <span>إجمالي المشاهدات</span>
-                </div>
+<div class="admin-layout">
+    <div class="sidebar">
+        <h2>لوحة التحكم</h2>
+        <div class="menu-item active" onclick="showSection('pending')">الطلبات المعلقة</div>
+        <div class="menu-item" onclick="showSection('owners')">إدارة الملاك</div>
+        <div class="menu-item" onclick="showSection('locations')">المواقع والمناطق</div>
+        <div class="menu-item" onclick="showSection('ads')">الإعلانات المدفوعة</div>
+    </div>
+
+    <div class="main-content">
+        <!-- قسم الطلبات المعلقة (الموافقة على التعديلات/الإضافات) -->
+        <div id="sec-pending">
+            <h3>طلبات الإضافة والتعديل المعلقة</h3>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>النوع</th>
+                            <th>الاسم</th>
+                            <th>المالك</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pending-table">
+                        <!-- JS fill -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="section orders-section">
-            <h2>الطلبات</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم الطلب</th>
-                        <th>المستخدم</th>
-                        <th>القاعة</th>
-                        <th>التاريخ</th>
-                        <th>الوقت</th>
-                        <th>عدد الضيوف</th>
-                        <th>الحالة</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="orders-table"></tbody>
-            </table>
-        </div>
-
-        <div class="section users-section">
-            <h2>المستخدمون</h2>
-            <input type="text" id="search-users" placeholder="بحث عن مستخدم..." style="margin-bottom:10px;width:100%;padding:8px;border-radius:6px;border:1px solid #ddd;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم المستخدم</th>
-                        <th>الاسم</th>
-                        <th>رقم الجوال</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table"></tbody>
-            </table>
-        </div>
-
-        <div class="section halls-section">
-            <h2>القاعات</h2>
-            <input type="text" id="search-halls" placeholder="بحث عن قاعة..." style="margin-bottom:10px;width:100%;padding:8px;border-radius:6px;border:1px solid #ddd;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم</th>
-                        <th>الاسم</th>
-                        <th>الموقع</th>
-                        <th>السعر</th>
-                        <th>التقييم</th>
-                        <th>عدد المقاعد</th>
-                        <th>المشاهدات</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="halls-table"></tbody>
-            </table>
-        </div>
-
-        <div class="section add-hall-section">
-            <h2>إضافة قاعة جديدة</h2>
-            <form class="add-hall-form" id="add-hall-form">
-                <label>اسم القاعة</label>
-                <input type="text" id="hall-name" required>
-                <label>الموقع</label>
-                <input type="text" id="hall-location" required>
-                <label>السعر</label>
-                <input type="number" id="hall-price" required>
-                <label>عدد المقاعد</label>
-                <input type="number" id="hall-capacity" required>
-                <label>روابط الصور (يمكنك إضافة أكثر من رابط أو رفع صور)</label>
-                <div id="hall-images-inputs">
-                    <input type="text" class="hall-image-input" placeholder="رابط الصورة 1" required>
-                </div>
-                <input type="file" id="hall-image-file" multiple accept="image/*" style="margin-bottom:12px;">
-                <button type="button" id="add-image-btn" style="margin-bottom:12px;">إضافة صورة أخرى</button>
-                <label>رابط فيديو يوتيوب (اختياري)</label>
-                <input type="text" id="hall-youtube" placeholder="رابط فيديو يوتيوب">
-                <label>الوصف</label>
-                <textarea id="hall-description"></textarea>
-                <label>التقييم (اختياري)</label>
-                <input type="number" id="hall-rating" min="0" max="5" step="0.1">
-                <button type="submit">إضافة القاعة</button>
-            </form>
-        </div>
-
-        <div class="section notifications-section">
-            <h2>إشعارات القاعات الفاضية</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>القاعة</th>
-                        <th>التاريخ</th>
-                        <th>وقت الإشعار</th>
-                    </tr>
-                </thead>
-                <tbody id="notifications-table"></tbody>
-            </table>
-        </div>
-
-        <div id="add-wallet-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0007;z-index:9999;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:30px;border-radius:14px;min-width:320px;max-width:90vw;">
-                <h3 id="wallet-modal-title">شحن رصيد المستخدم</h3>
-                <select id="wallet-action" style="width:100%;margin-bottom:12px;padding:8px;border-radius:6px;border:1px solid #ddd;">
-                    <option value="add">شحن رصيد</option>
-                    <option value="deduct">خصم رصيد</option>
-                </select>
-                <input type="number" id="wallet-amount" placeholder="المبلغ" style="width:100%;margin-bottom:12px;padding:8px;border-radius:6px;border:1px solid #ddd;">
-                <input type="text" id="wallet-desc" placeholder="وصف العملية (اختياري)" style="width:100%;margin-bottom:12px;padding:8px;border-radius:6px;border:1px solid #ddd;">
-                <button class="btn primary" onclick="submitAddWallet()">تنفيذ</button>
-                <button class="btn" onclick="closeAddWalletModal()">إغلاق</button>
-                <div id="wallet-modal-msg" style="color:#c00;margin-top:10px;"></div>
+        <!-- قسم المواقع -->
+        <div id="sec-locations" style="display:none;">
+            <h3>إدارة المحافظات والمدن</h3>
+            <div class="card" style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="text" id="new-gov-name" placeholder="اسم المحافظة الجديدة" style="padding:10px; border:1px solid #ddd; border-radius:6px;">
+                <button onclick="addGovernorate()" class="btn-main" style="width:auto;">إضافة محافظة</button>
+            </div>
+            <div class="card">
+                <ul id="gov-list"></ul>
             </div>
         </div>
-
-        <div class="section reviews-section">
-            <h2>تعليقات القاعات</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم</th>
-                        <th>اسم القاعة</th>
-                        <th>اسم المستخدم</th>
-                        <th>رقم المستخدم</th>
-                        <th>عدد النجوم</th>
-                        <th>التعليق</th>
-                        <th>تاريخ</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="reviews-table"></tbody>
-            </table>
-            <div id="edit-review-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.2);z-index:9999;justify-content:center;align-items:center;">
-                <div style="background:#fff;padding:24px;border-radius:10px;min-width:300px;">
-                    <h3>تعديل التعليق</h3>
-                    <label>عدد النجوم</label>
-                    <input type="number" id="edit-review-stars" min="1" max="5" style="width:60px;">
-                    <label>التعليق</label>
-                    <textarea id="edit-review-text" style="width:100%;height:60px;"></textarea>
-                    <div style="margin-top:12px;text-align:left;">
-                        <button id="save-review-btn" style="background:#3498db;color:#fff;padding:6px 18px;border:none;border-radius:6px;">حفظ</button>
-                        <button id="cancel-review-btn" style="background:#eee;padding:6px 18px;border:none;border-radius:6px;">إلغاء</button>
-                    </div>
-                </div>
+        
+        <!-- قسم الإعلانات -->
+        <div id="sec-ads" style="display:none;">
+            <h3>إضافة إعلان مدفوع</h3>
+            <div class="card">
+                <input type="text" id="ad-title" placeholder="عنوان الإعلان" style="width:100%; margin-bottom:10px; padding:10px;">
+                <input type="file" id="ad-img" style="margin-bottom:10px;">
+                <button class="btn-main" onclick="addAd()">نشر الإعلان</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-    document.querySelectorAll('.admin-nav button').forEach(btn => {
-        btn.onclick = function() {
-            document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelector('.' + this.dataset.section + '-section').classList.add('active');
-            if (this.dataset.section === 'dashboard') loadDashboard();
-            if (this.dataset.section === 'orders') loadOrders();
-            if (this.dataset.section === 'users') loadUsers();
-            if (this.dataset.section === 'halls') loadHalls();
-            if (this.dataset.section === 'reviews') loadReviews();
-            if (this.dataset.section === 'notifications') loadNotifications();
-        };
-    });
-
-    // زر إضافة صورة أخرى
-    document.getElementById('add-image-btn').onclick = function() {
-        const container = document.getElementById('hall-images-inputs');
-        const count = container.querySelectorAll('input').length + 1;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'hall-image-input';
-        input.placeholder = 'رابط الصورة ' + count;
-        input.style.marginTop = '6px';
-        container.appendChild(input);
-    };
-
-    async function loadDashboard() {
-        const halls = await fetch('/api/halls').then(r => r.json());
-        const users = await fetch('/api/users').then(r => r.json());
-        const orders = await fetch('/api/bookings').then(r => r.json());
-        document.getElementById('stat-halls').textContent = halls.length;
-        document.getElementById('stat-users').textContent = users.length;
-        document.getElementById('stat-orders').textContent = orders.length;
-        document.getElementById('stat-views').textContent = halls.reduce((a, h) => a + (h.views || 0), 0);
+<script>
+    function showSection(id) {
+        document.querySelectorAll('.main-content > div').forEach(d => d.style.display = 'none');
+        document.getElementById('sec-' + id).style.display = 'block';
+        if(id === 'pending') loadPending();
+        if(id === 'locations') loadLocationsAdmin();
     }
 
-    async function loadOrders() {
-        const orders = await fetch('/api/bookings').then(r => r.json());
-        const users = await fetch('/api/users').then(r => r.json());
-        const halls = await fetch('/api/halls').then(r => r.json());
-        const tbody = document.getElementById('orders-table');
-        tbody.innerHTML = '';
-        orders.forEach(o => {
-            const user = users.find(u => u.id === o.user_id) || {};
-            const hall = halls.find(h => h.id === o.hall_id) || {};
-            let status = '<span class="status-pending">معلقة</span>';
-            if (o.status === 'approved') status = '<span class="status-approved">تم الحجز</span>';
-            else if (o.status === 'deposit') status = '<span class="status-deposit">عربون</span>';
-            else if (o.status === 'canceled_user' || o.status === 'canceled_admin') status = '<span class="status-canceled">ملغاة</span>';
-            tbody.innerHTML += `
-                <tr>
-                    <td>${o.booking_number}</td>
-                    <td>${user.name || '-'}</td>
-                    <td>${hall.name || '-'}</td>
-                    <td>${o.date}</td>
-                    <td>${o.time}</td>
-                    <td>${o.guests}</td>
-                    <td>${status}</td>
-                    <td class="actions">
-                        <button onclick="updateOrderStatus(${o.id},'approved')">اعتماد</button>
-                        <button onclick="updateOrderStatus(${o.id},'deposit')">عربون</button>
-                        <button onclick="updateOrderStatus(${o.id},'canceled_admin')">إلغاء</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-    window.updateOrderStatus = async function(id, status) {
-        await fetch('/api/bookings/' + id + '/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-        });
-        loadOrders();
-    };
-
-    async function loadUsers() {
-        const users = await fetch('/api/users').then(r => r.json());
-        const tbody = document.getElementById('users-table');
-        const search = (document.getElementById('search-users')?.value || '').trim();
-        let filtered = users;
-        if (search) {
-            filtered = users.filter(u =>
-                u.name.includes(search) || u.phone.includes(search)
-            );
-        }
-        tbody.innerHTML = '';
-        filtered.forEach(u => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${u.id}</td>
-                    <td>${u.name}</td>
-                    <td>${u.phone}</td>
-                    <td>
-                        <button class="btn secondary btn-sm" onclick="showAddWalletModal(${u.id}, '${u.name.replace(/'/g, "\\'")}')">
-                            <i class="fas fa-wallet"></i> شحن/خصم رصيد
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-    document.getElementById('search-users').oninput = loadUsers;
-
-    async function loadHalls() {
-        const halls = await fetch('/api/halls').then(r => r.json());
-        const tbody = document.getElementById('halls-table');
-        const search = (document.getElementById('search-halls')?.value || '').trim();
-        let filtered = halls;
-        if (search) {
-            filtered = halls.filter(h =>
-                h.name.includes(search) || h.location.includes(search)
-            );
-        }
-        tbody.innerHTML = '';
-        filtered.forEach(h => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${h.id}</td>
-                    <td>${h.name}</td>
-                    <td>${h.location}</td>
-                    <td>${h.price}</td>
-                    <td>${h.rating || 0}</td>
-                    <td>${h.capacity || '-'}</td>
-                    <td>${h.views || 0}</td>
-                    <td></td>
-                </tr>
-            `;
-        });
-    }
-    document.getElementById('search-halls').oninput = loadHalls;
-
-    async function loadNotifications() {
-        const notifications = await fetch('/api/available-notifications').then(r => r.json());
-        const tbody = document.getElementById('notifications-table');
-        tbody.innerHTML = '';
-        notifications.forEach(n => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${n.hall_name || n.hall_id}</td>
-                    <td>${n.date}</td>
-                    <td>${n.created_at ? n.created_at.split('T')[0] + ' ' + (n.created_at.split('T')[1] || '') : ''}</td>
-                </tr>
-            `;
-        });
-    }
-
-    if ("Notification" in window && Notification.permission !== "granted") {
-        Notification.requestPermission();
-    }
-    setInterval(async () => {
-        const notifications = await fetch('/api/available-notifications').then(r => r.json());
-        if (notifications.length && (!window.lastNotified || window.lastNotified !== notifications[0].id)) {
-            window.lastNotified = notifications[0].id;
-            if (Notification.permission === "granted") {
-                new Notification("إشعار جديد", {
-                    body: `القاعة "${notifications[0].hall_name}" متاحة في ${notifications[0].date}`,
-                    icon: "/favicon.ico"
-                });
-            }
-        }
-    }, 60000);
-
-    if (this.dataset && this.dataset.section === 'notifications') loadNotifications();
-
-    document.getElementById('add-hall-form').onsubmit = async function(e) {
-        e.preventDefault();
-        const name = document.getElementById('hall-name').value;
-        const location = document.getElementById('hall-location').value;
-        const price = document.getElementById('hall-price').value;
-        const capacity = document.getElementById('hall-capacity').value;
-        const description = document.getElementById('hall-description').value;
-        const rating = document.getElementById('hall-rating').value;
-        const youtube = document.getElementById('hall-youtube').value.trim();
-
-        // جمع كل الصور من الروابط
-        let images = Array.from(document.querySelectorAll('.hall-image-input'))
-            .map(input => input.value.trim())
-            .filter(v => v);
-
-        // جمع الصور من الجهاز (رفع محلي)
-        const files = document.getElementById('hall-image-file').files;
-        if (files && files.length) {
-            for (let file of files) {
-                // رفع الصورة للسيرفر (يجب أن تدعم ذلك في backend)
-                const formData = new FormData();
-                formData.append('image', file);
-                const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
-                const data = await res.json();
-                if (data.url) images.push(data.url);
-            }
-        }
-
-        if (!images.length) {
-            alert('يرجى إضافة صورة واحدة على الأقل');
-            return;
-        }
-
-        await fetch('/api/halls', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, location, price, capacity, description, images, rating, youtube })
-        });
-        alert('تمت إضافة القاعة بنجاح');
-        this.reset();
-        document.getElementById('hall-images-inputs').innerHTML = '<input type="text" class="hall-image-input" placeholder="رابط الصورة 1" required>';
-        loadHalls();
-    };
-
-    async function loadReviews() {
-        const reviews = await fetch('/api/all-reviews').then(r => r.json());
-        const tbody = document.getElementById('reviews-table');
-        tbody.innerHTML = '';
-        reviews.forEach((r, i) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${r.id}</td>
-                    <td>${r.hall_name || '-'}</td>
-                    <td>${r.user_name || '-'}</td>
-                    <td>${r.user_id}</td>
-                    <td>${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</td>
-                    <td>${r.comment}</td>
-                    <td>${r.created_at ? r.created_at.split('T')[0] : ''}</td>
-                    <td>
-                        <button onclick="showEditReview(${r.id},${r.rating},'${(r.comment || '').replace(/'/g,"\\'")}')">تعديل</button>
-                        <button onclick="deleteReview(${r.id})">حذف</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-    window.deleteReview = async function(id) {
-        if (!confirm('هل أنت متأكد من حذف التعليق؟')) return;
-        await fetch('/api/reviews/' + id, { method: 'DELETE' });
-        loadReviews();
-    };
-
-    let editingReviewId = null;
-    window.showEditReview = function(id, rating, comment) {
-        editingReviewId = id;
-        document.getElementById('edit-review-stars').value = rating;
-        document.getElementById('edit-review-text').value = comment;
-        document.getElementById('edit-review-modal').style.display = 'flex';
-    };
-    document.getElementById('cancel-review-btn').onclick = function() {
-        document.getElementById('edit-review-modal').style.display = 'none';
-    };
-    document.getElementById('save-review-btn').onclick = async function() {
-        const rating = document.getElementById('edit-review-stars').value;
-        const comment = document.getElementById('edit-review-text').value;
-        await fetch('/api/reviews/' + editingReviewId, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ rating, comment })
-        });
-        document.getElementById('edit-review-modal').style.display = 'none';
-        loadReviews();
-    };
-
-    let addWalletUserId = null;
-    function showAddWalletModal(userId, userName) {
-        addWalletUserId = userId;
-        document.getElementById('wallet-modal-title').textContent = 'شحن/خصم رصيد لـ ' + userName;
-        document.getElementById('wallet-amount').value = '';
-        document.getElementById('wallet-desc').value = '';
-        document.getElementById('wallet-modal-msg').textContent = '';
-        document.getElementById('wallet-action').value = 'add';
-        document.getElementById('add-wallet-modal').style.display = 'flex';
-    }
-    function closeAddWalletModal() {
-        document.getElementById('add-wallet-modal').style.display = 'none';
-    }
-    async function submitAddWallet() {
-        const amount = parseInt(document.getElementById('wallet-amount').value);
-        const desc = document.getElementById('wallet-desc').value;
-        const action = document.getElementById('wallet-action').value;
-        if (!amount || isNaN(amount) || amount <= 0) {
-            document.getElementById('wallet-modal-msg').textContent = 'يرجى إدخال مبلغ صحيح';
-            return;
-        }
-        const res = await fetch('/api/wallet/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                user_id: addWalletUserId,
-                amount,
-                description: desc,
-                action
-            })
-        });
+    async function loadPending() {
+        const res = await fetch('/api/admin/pending-listings');
         const data = await res.json();
-        if (data.success) {
-            document.getElementById('wallet-modal-msg').style.color = '#388e3c';
-            document.getElementById('wallet-modal-msg').textContent = (action === 'deduct' ? 'تم خصم الرصيد بنجاح' : 'تم شحن الرصيد بنجاح');
-            setTimeout(closeAddWalletModal, 1200);
-        } else {
-            document.getElementById('wallet-modal-msg').style.color = '#c00';
-            document.getElementById('wallet-modal-msg').textContent = data.error || 'حدث خطأ';
-        }
+        const tbody = document.getElementById('pending-table');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.type === 'hall' ? 'قاعة' : (item.type === 'car' ? 'سيارة' : 'شاليه')}</td>
+                    <td>${item.name}</td>
+                    <td>${item.owner_id}</td>
+                    <td><span class="status-badge bg-pending">بانتظار الموافقة</span></td>
+                    <td>
+                        <button class="btn-action btn-approve" onclick="approveListing(${item.id}, 'active')">قبول</button>
+                        <button class="btn-action btn-reject" onclick="approveListing(${item.id}, 'rejected')">رفض</button>
+                    </td>
+                </tr>
+            `;
+        });
     }
 
-    function loadAll() {
-        loadDashboard();
-        loadOrders();
-        loadUsers();
-        loadHalls();
+    async function approveListing(id, action) {
+        await fetch('/api/admin/approve-listing', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id, action})
+        });
+        loadPending();
     }
-    loadAll();
-    </script>
+
+    async function addGovernorate() {
+        const name = document.getElementById('new-gov-name').value;
+        if(!name) return;
+        await fetch('/api/governorates', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name})
+        });
+        alert('تمت الإضافة');
+        document.getElementById('new-gov-name').value = '';
+    }
+
+    // تهيئة أولية
+    loadPending();
+</script>
 </body>
 </html>
