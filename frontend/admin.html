@@ -2,145 +2,30 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة الإدارة الشاملة</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css"> <!-- نعيد استخدام بعض الستايلات -->
-    <style>
-        body { background: #f0f2f5; font-family: 'Tajawal', sans-serif; }
-        .admin-layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 250px; background: #fff; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
-        .sidebar h2 { color: #007AFF; margin-bottom: 30px; text-align: center; }
-        .menu-item { display: block; padding: 12px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; color: #555; transition: 0.2s; }
-        .menu-item:hover, .menu-item.active { background: #e3f2fd; color: #007AFF; font-weight: bold; }
-        
-        .main-content { flex: 1; padding: 30px; }
-        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: #666; }
-        
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; }
-        .bg-pending { background: #fff3e0; color: #e65100; }
-        .bg-active { background: #e8f5e9; color: #2e7d32; }
-        
-        .btn-action { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; color: #fff; margin-left: 5px; }
-        .btn-approve { background: #34C759; }
-        .btn-reject { background: #FF3B30; }
-        .btn-block { background: #333; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الشركاء (أصحاب القاعات)</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body style="background:#f5f7fa;">
 
-<div class="admin-layout">
-    <div class="sidebar">
-        <h2>لوحة التحكم</h2>
-        <div class="menu-item active" onclick="showSection('pending')">الطلبات المعلقة</div>
-        <div class="menu-item" onclick="showSection('owners')">إدارة الملاك</div>
-        <div class="menu-item" onclick="showSection('locations')">المواقع والمناطق</div>
-        <div class="menu-item" onclick="showSection('ads')">الإعلانات المدفوعة</div>
-    </div>
-
-    <div class="main-content">
-        <!-- قسم الطلبات المعلقة (الموافقة على التعديلات/الإضافات) -->
-        <div id="sec-pending">
-            <h3>طلبات الإضافة والتعديل المعلقة</h3>
-            <div class="card">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>النوع</th>
-                            <th>الاسم</th>
-                            <th>المالك</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pending-table">
-                        <!-- JS fill -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- قسم المواقع -->
-        <div id="sec-locations" style="display:none;">
-            <h3>إدارة المحافظات والمدن</h3>
-            <div class="card" style="display:flex; gap:10px; margin-bottom:20px;">
-                <input type="text" id="new-gov-name" placeholder="اسم المحافظة الجديدة" style="padding:10px; border:1px solid #ddd; border-radius:6px;">
-                <button onclick="addGovernorate()" class="btn-main" style="width:auto;">إضافة محافظة</button>
-            </div>
-            <div class="card">
-                <ul id="gov-list"></ul>
-            </div>
-        </div>
-        
-        <!-- قسم الإعلانات -->
-        <div id="sec-ads" style="display:none;">
-            <h3>إضافة إعلان مدفوع</h3>
-            <div class="card">
-                <input type="text" id="ad-title" placeholder="عنوان الإعلان" style="width:100%; margin-bottom:10px; padding:10px;">
-                <input type="file" id="ad-img" style="margin-bottom:10px;">
-                <button class="btn-main" onclick="addAd()">نشر الإعلان</button>
-            </div>
+    <div id="owner-login" class="screen active" style="justify-content:center; align-items:center;">
+        <div class="auth-card">
+            <h2 style="text-align:center; color:#007AFF;">دخول الشركاء</h2>
+            <p style="text-align:center; color:#666; margin-bottom:20px;">أصحاب القاعات، الشاليهات، ومكاتب التأجير</p>
+            <form onsubmit="event.preventDefault(); alert('سيتم تفعيل الدخول قريباً');">
+                <div class="input-box">
+                    <i class="fas fa-phone"></i>
+                    <input type="text" placeholder="رقم الموبايل">
+                </div>
+                <div class="input-box">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" placeholder="كلمة المرور">
+                </div>
+                <button class="btn-main">دخول</button>
+            </form>
         </div>
     </div>
-</div>
 
-<script>
-    function showSection(id) {
-        document.querySelectorAll('.main-content > div').forEach(d => d.style.display = 'none');
-        document.getElementById('sec-' + id).style.display = 'block';
-        if(id === 'pending') loadPending();
-        if(id === 'locations') loadLocationsAdmin();
-    }
-
-    async function loadPending() {
-        const res = await fetch('/api/admin/pending-listings');
-        const data = await res.json();
-        const tbody = document.getElementById('pending-table');
-        tbody.innerHTML = '';
-        data.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.type === 'hall' ? 'قاعة' : (item.type === 'car' ? 'سيارة' : 'شاليه')}</td>
-                    <td>${item.name}</td>
-                    <td>${item.owner_id}</td>
-                    <td><span class="status-badge bg-pending">بانتظار الموافقة</span></td>
-                    <td>
-                        <button class="btn-action btn-approve" onclick="approveListing(${item.id}, 'active')">قبول</button>
-                        <button class="btn-action btn-reject" onclick="approveListing(${item.id}, 'rejected')">رفض</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    async function approveListing(id, action) {
-        await fetch('/api/admin/approve-listing', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id, action})
-        });
-        loadPending();
-    }
-
-    async function addGovernorate() {
-        const name = document.getElementById('new-gov-name').value;
-        if(!name) return;
-        await fetch('/api/governorates', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name})
-        });
-        alert('تمت الإضافة');
-        document.getElementById('new-gov-name').value = '';
-    }
-
-    // تهيئة أولية
-    loadPending();
-</script>
 </body>
 </html>
